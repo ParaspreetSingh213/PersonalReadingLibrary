@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
@@ -17,6 +18,8 @@ struct LibraryView: View {
     }
 
     var body: some View {
+        @Bindable var model = viewModel
+
         NavigationStack {
             Group {
                 if !viewModel.errorMessage.isEmpty {
@@ -32,22 +35,77 @@ struct LibraryView: View {
                         description: Text("Tap + to add your first book.")
                     )
                 } else {
-                    List(viewModel.books) { book in
-                        NavigationLink {
-                            BookDetailView(
-                                book: book,
-                                persistenceService: persistenceService,
-                                onChanged: {
-                                    viewModel.loadBooks()
+                    List {
+                        Section("Filter and Sort") {
+                            Picker(
+                                "Category",
+                                selection: $model.selectedCategoryID
+                            ) {
+                                Text("All Categories")
+                                    .tag(nil as PersistentIdentifier?)
+
+                                ForEach(viewModel.categories) { category in
+                                    Text(category.name)
+                                        .tag(Optional(category.persistentModelID))
                                 }
-                            )
-                        } label: {
-                            BookRowView(book: book)
+                            }
+
+                            Picker(
+                                "Reading Status",
+                                selection: $model.selectedStatus
+                            ) {
+                                Text("All Statuses")
+                                    .tag("All Statuses")
+
+                                Text("Not Started")
+                                    .tag("Not Started")
+
+                                Text("Reading")
+                                    .tag("Reading")
+
+                                Text("Completed")
+                                    .tag("Completed")
+                            }
+
+                            Picker(
+                                "Sort By",
+                                selection: $model.sortOption
+                            ) {
+                                ForEach(LibrarySortOption.allCases) { option in
+                                    Text(option.rawValue)
+                                        .tag(option)
+                                }
+                            }
+                        }
+
+                        Section("Books") {
+                            if viewModel.filteredBooks.isEmpty {
+                                Text("No books match your search and filters.")
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                ForEach(viewModel.filteredBooks) { book in
+                                    NavigationLink {
+                                        BookDetailView(
+                                            book: book,
+                                            persistenceService: persistenceService,
+                                            onChanged: {
+                                                viewModel.loadBooks()
+                                            }
+                                        )
+                                    } label: {
+                                        BookRowView(book: book)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
             .navigationTitle("My Library")
+            .searchable(
+                text: $model.searchText,
+                prompt: "Search by title or author"
+            )
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
