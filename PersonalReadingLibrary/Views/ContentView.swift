@@ -24,6 +24,15 @@ struct ContentView: View {
             .tabItem {
                 Label("Categories", systemImage: "folder")
             }
+
+            DashboardView(
+                persistenceService: PersistenceService(
+                    modelContext: modelContext
+                )
+            )
+            .tabItem {
+                Label("Dashboard", systemImage: "chart.bar.fill")
+            }
         }
     }
 }
