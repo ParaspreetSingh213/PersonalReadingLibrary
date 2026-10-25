@@ -6,11 +6,25 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
-        LibraryView(
-            persistenceService: PersistenceService(
-                modelContext: modelContext
+        TabView {
+            LibraryView(
+                persistenceService: PersistenceService(
+                    modelContext: modelContext
+                )
             )
-        )
+            .tabItem {
+                Label("Library", systemImage: "books.vertical")
+            }
+
+            CategoriesView(
+                persistenceService: PersistenceService(
+                    modelContext: modelContext
+                )
+            )
+            .tabItem {
+                Label("Categories", systemImage: "folder")
+            }
+        }
     }
 }
 
