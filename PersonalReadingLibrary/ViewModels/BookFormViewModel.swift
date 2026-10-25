@@ -1,4 +1,3 @@
-
 import Foundation
 import Observation
 import SwiftData
@@ -20,6 +19,39 @@ final class BookFormViewModel {
 
     var isEditing: Bool {
         book != nil
+    }
+
+    var readingStatus: String {
+        guard let book else {
+            return ReadingStatus.notStarted.rawValue
+        }
+
+        return ReadingService.getStatus(
+            pagesRead: book.pagesRead,
+            totalPages: book.totalPages
+        ).rawValue
+    }
+
+    var progressPercentage: Int {
+        guard let book else {
+            return 0
+        }
+
+        return ReadingService.getProgressPercentage(
+            pagesRead: book.pagesRead,
+            totalPages: book.totalPages
+        )
+    }
+
+    var progress: Double {
+        guard let book else {
+            return 0
+        }
+
+        return ReadingService.getProgress(
+            pagesRead: book.pagesRead,
+            totalPages: book.totalPages
+        )
     }
 
     init(persistenceService: PersistenceService, book: Book? = nil) {
@@ -109,6 +141,22 @@ final class BookFormViewModel {
             return true
         } catch {
             errorMessage = "Unable to save book: \(error.localizedDescription)"
+            return false
+        }
+    }
+
+    func deleteBook() -> Bool {
+        guard let book else {
+            errorMessage = "No book was selected."
+            return false
+        }
+
+        do {
+            try persistenceService.deleteBook(book: book)
+            errorMessage = ""
+            return true
+        } catch {
+            errorMessage = "Unable to delete book: \(error.localizedDescription)"
             return false
         }
     }

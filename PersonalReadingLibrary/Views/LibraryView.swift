@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct LibraryView: View {
@@ -34,7 +33,17 @@ struct LibraryView: View {
                     )
                 } else {
                     List(viewModel.books) { book in
-                        BookRowView(book: book)
+                        NavigationLink {
+                            BookDetailView(
+                                book: book,
+                                persistenceService: persistenceService,
+                                onChanged: {
+                                    viewModel.loadBooks()
+                                }
+                            )
+                        } label: {
+                            BookRowView(book: book)
+                        }
                     }
                 }
             }
