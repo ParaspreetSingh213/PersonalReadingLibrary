@@ -3,8 +3,13 @@ import SwiftUI
 
 struct LibraryView: View {
     @State private var viewModel: LibraryViewModel
+    @State private var isShowingAddBook = false
+
+    private let persistenceService: PersistenceService
 
     init(persistenceService: PersistenceService) {
+        self.persistenceService = persistenceService
+
         _viewModel = State(
             initialValue: LibraryViewModel(
                 persistenceService: persistenceService
@@ -25,7 +30,7 @@ struct LibraryView: View {
                     ContentUnavailableView(
                         "No Books Yet",
                         systemImage: "books.vertical",
-                        description: Text("Your books will appear here.")
+                        description: Text("Tap + to add your first book.")
                     )
                 } else {
                     List(viewModel.books) { book in
@@ -34,7 +39,25 @@ struct LibraryView: View {
                 }
             }
             .navigationTitle("My Library")
-            .task {
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isShowingAddBook = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .accessibilityLabel("Add Book")
+                }
+            }
+            .sheet(isPresented: $isShowingAddBook) {
+                BookFormView(
+                    persistenceService: persistenceService,
+                    onSaved: {
+                        viewModel.loadBooks()
+                    }
+                )
+            }
+            .onAppear {
                 viewModel.loadBooks()
             }
         }
