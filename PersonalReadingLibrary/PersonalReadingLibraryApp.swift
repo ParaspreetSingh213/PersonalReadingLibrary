@@ -1,11 +1,6 @@
-//
-//  PersonalReadingLibraryApp.swift
-//  PersonalReadingLibrary
-//
-//  Created by Paras Dhillon on 23/10/26.
-//
 
 import SwiftUI
+import SwiftData
 
 @main
 struct PersonalReadingLibraryApp: App {
@@ -13,5 +8,10 @@ struct PersonalReadingLibraryApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [
+            Book.self,
+            Category.self
+        ])
     }
 }
+

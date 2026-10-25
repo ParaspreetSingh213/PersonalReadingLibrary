@@ -1,24 +1,35 @@
-//
-//  ContentView.swift
-//  PersonalReadingLibrary
-//
-//  Created by Paras Dhillon on 23/10/26.
-//
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            VStack(spacing: 20) {
+                Image(systemName: "books.vertical.fill")
+                    .font(.system(size: 70))
+                    .foregroundStyle(.blue)
+
+                Text("Personal Reading Library")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+
+                Text("Organize your books and track your reading progress.")
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            .navigationTitle("My Library")
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(
+            for: [Book.self, Category.self],
+            inMemory: true
+        )
 }
+
