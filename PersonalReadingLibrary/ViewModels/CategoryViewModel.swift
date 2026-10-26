@@ -1,11 +1,12 @@
-
 import Foundation
 import Observation
+import SwiftData
 
 @MainActor
 @Observable
 final class CategoryViewModel {
     var categories: [Category] = []
+    var books: [Book] = []
     var categoryName = ""
     var editingCategory: Category?
     var categoryToDelete: Category?
@@ -24,9 +25,16 @@ final class CategoryViewModel {
     func loadCategories() {
         do {
             categories = try persistenceService.fetchCategories()
+            books = try persistenceService.fetchBooks()
         } catch {
             showError("Unable to load categories: \(error.localizedDescription)")
         }
+    }
+
+    func bookCount(for category: Category) -> Int {
+        books.filter { book in
+            book.category.persistentModelID == category.persistentModelID
+        }.count
     }
 
     func startAdding() {
@@ -86,7 +94,7 @@ final class CategoryViewModel {
                 try persistenceService.addCategory(name: trimmedName)
             }
 
-            categories = try persistenceService.fetchCategories()
+            loadCategories()
             cancelForm()
         } catch {
             errorMessage = "Unable to save category: \(error.localizedDescription)"
@@ -95,9 +103,9 @@ final class CategoryViewModel {
 
     func requestDelete(category: Category) {
         do {
-            let books = try persistenceService.fetchBooks()
+            let savedBooks = try persistenceService.fetchBooks()
 
-            let containsBooks = books.contains { book in
+            let containsBooks = savedBooks.contains { book in
                 book.category.persistentModelID == category.persistentModelID
             }
 
@@ -125,8 +133,8 @@ final class CategoryViewModel {
                 category: categoryToDelete
             )
 
-            categories = try persistenceService.fetchCategories()
             self.categoryToDelete = nil
+            loadCategories()
         } catch {
             showError("Unable to delete category: \(error.localizedDescription)")
         }

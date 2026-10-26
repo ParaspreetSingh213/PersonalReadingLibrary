@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct CategoriesView: View {
@@ -29,7 +28,7 @@ struct CategoriesView: View {
                                     Text(category.name)
                                         .font(.headline)
 
-                                    Text("\(category.books.count) books")
+                                    Text("\(viewModel.bookCount(for: category)) books")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
